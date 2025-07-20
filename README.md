@@ -71,5 +71,43 @@ docker version
 echo 'fs.inotify.max_user_instances=8192' | sudo tee --append /etc/sysctl.conf
 echo 'fs.inotify.max_user_watches=524288' | sudo tee --append /etc/sysctl.conf
 
-# reboot
+# reboot or reload sysctl
+sysctl --system
+```
+
+
+#### Installing Utils server
+
+make sure to install [gcloud-cli first](https://cloud.google.com/sdk/docs/install#deb)
+
+```bash
+# this goes in your utils server where we host cli and local registry
+gloud login
+gcloud storage cp gs://anthos-baremetal-release/bmctl/1.32.200-gke.104/linux-amd64/bmctl .
+chmod +x ./bmctl
+```
+
+configure google cloud resources
+```bash
+gcloud services enable --project=haph-sandbox-sandbox-971300 \
+    anthos.googleapis.com \
+    anthosaudit.googleapis.com \
+    anthosgke.googleapis.com \
+    cloudresourcemanager.googleapis.com \
+    compute.googleapis.com \
+    connectgateway.googleapis.com \
+    container.googleapis.com \
+    gkeconnect.googleapis.com \
+    gkehub.googleapis.com \
+    gkeonprem.googleapis.com \
+    iam.googleapis.com \
+    kubernetesmetadata.googleapis.com \
+    logging.googleapis.com \
+    monitoring.googleapis.com \
+    opsconfigmonitoring.googleapis.com \
+    serviceusage.googleapis.com \
+    stackdriver.googleapis.com \
+    storage.googleapis.com
+
+# verify enabled API
 ```
