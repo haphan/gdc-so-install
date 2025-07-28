@@ -1,6 +1,8 @@
 ## GDC Software Only installation notes
 
-#### Prepare autoinstall iso 
+### Preload nodes with Ubuntu - headless installation
+
+This steps are to consistently bootstrap base OS for all baremetal nodes intended to use in Admin Clusters and User Clusters using Canonical autoinstall method.
 
 
 ```bash
@@ -40,11 +42,24 @@ autoinstall:
 ```
 
 
-May need to configure passwordless sudo
+Configure passwordless sudo manually, this step apparently can be added to autoinstall script above
 
 echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ubuntu
 
-##  Configure base OS
+```bash
+# increase system limit 
+# fs.inotify.max_user_instances: 8192 
+# fs.inotify.max_user_watches: 524288
+
+echo 'fs.inotify.max_user_instances=8192' | sudo tee --append /etc/sysctl.conf
+echo 'fs.inotify.max_user_watches=524288' | sudo tee --append /etc/sysctl.conf
+
+# reboot or reload sysctl
+sysctl --system
+```
+
+
+###  Configure base OS for Admin workstation (can be VM)
 
 ```bash
 # disale ufw firewall
@@ -76,12 +91,12 @@ sysctl --system
 ```
 
 
-#### Installing Utils server
+### Installing Utils in admin workstation
 
 make sure to install [gcloud-cli first](https://cloud.google.com/sdk/docs/install#deb)
 
 ```bash
-# this goes in your utils server where we host cli and local registry
+# this goes in your 
 gloud login
 gcloud storage cp gs://anthos-baremetal-release/bmctl/1.32.200-gke.104/linux-amd64/bmctl .
 chmod +x ./bmctl
@@ -109,5 +124,38 @@ gcloud services enable --project=haph-sandbox-sandbox-971300 \
     stackdriver.googleapis.com \
     storage.googleapis.com
 
-# verify enabled API
 ```
+
+### Install ADMIN Cluster
+
+To run these command from Admin workstation. Making sure it can reach all the nodes intended for Admin cluster via ssh and can perform passwordless sudo.
+
+```bash
+bmctl create config -c ADMIN_CLUSTER_NAME
+```
+
+The file is created at `bmctl-workspace/ADMIN_CLUSTER_NAME/ADMIN_CLUSTER_NAME.yaml`.  Update this yaml file according to the design. See (sample)[https://cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/reference/config-samples#user_clusters] here.
+
+One yaml file is done, create the cluster 
+
+```bash
+bmctl create cluster -c ADMIN_CLUSTER_NAME
+```
+
+After this step is done, an `kubeconfig` file for admin cluster is generate in `bmctl-workspace/ADMIN_CLUSTER_NAME/`, use this kubeconfig to validate all nodes are in `Ready` state.
+
+### Install USER Cluster
+
+
+```bash
+bmctl create config -c USER_CLUSTER_NAME
+```
+
+The file is created at `bmctl-workspace/USER_CLUSTER_NAME/USER_CLUSTER_NAME.yaml`. Update this yaml file according to the design. 
+
+
+```bash
+bmctl create cluster -c USER_CLUSTER_NAME –-kubeconfig $ADMIN_KUBECONFIG
+```
+
+
