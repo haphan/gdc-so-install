@@ -134,7 +134,7 @@ To run these command from Admin workstation. Making sure it can reach all the no
 bmctl create config -c ADMIN_CLUSTER_NAME
 ```
 
-The file is created at `bmctl-workspace/ADMIN_CLUSTER_NAME/ADMIN_CLUSTER_NAME.yaml`.  Update this yaml file according to the design. See (sample)[https://cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/reference/config-samples#user_clusters] here.
+The file is created at `bmctl-workspace/ADMIN_CLUSTER_NAME/ADMIN_CLUSTER_NAME.yaml`.  Update this yaml file according to the design. See [sample](https://cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/reference/config-samples#user_clusters) here.
 
 One yaml file is done, create the cluster 
 
